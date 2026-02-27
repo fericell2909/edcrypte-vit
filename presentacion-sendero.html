@@ -1,0 +1,1738 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Propuesta Técnica – Integración Sendero + Toku</title>
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap');
+
+    :root {
+      --primary: #1a1a2e;
+      --secondary: #16213e;
+      --accent: #0f3460;
+      --highlight: #e94560;
+      --highlight-light: #ff6b81;
+      --success: #2ed573;
+      --warning: #ffa502;
+      --danger: #ff4757;
+      --text: #f1f2f6;
+      --text-muted: #a4b0be;
+      --card-bg: rgba(255, 255, 255, 0.05);
+      --card-border: rgba(255, 255, 255, 0.08);
+      --gradient-1: linear-gradient(135deg, #e94560, #0f3460);
+      --gradient-2: linear-gradient(135deg, #1a1a2e, #16213e);
+    }
+
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    html {
+      scroll-behavior: smooth;
+    }
+
+    body {
+      font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+      background: var(--primary);
+      color: var(--text);
+      line-height: 1.7;
+      overflow-x: hidden;
+    }
+
+    /* ======================== NAV ======================== */
+    nav {
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      z-index: 1000;
+      background: rgba(26, 26, 46, 0.92);
+      backdrop-filter: blur(20px);
+      border-bottom: 1px solid var(--card-border);
+      padding: 0 2rem;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      height: 64px;
+      transition: transform 0.3s;
+    }
+
+    nav .brand {
+      font-weight: 800;
+      font-size: 1.1rem;
+      background: var(--gradient-1);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      letter-spacing: -0.5px;
+    }
+
+    nav ul {
+      list-style: none;
+      display: flex;
+      gap: 0.25rem;
+    }
+
+    nav ul li a {
+      color: var(--text-muted);
+      text-decoration: none;
+      font-size: 0.8rem;
+      font-weight: 500;
+      padding: 0.5rem 0.85rem;
+      border-radius: 8px;
+      transition: all 0.2s;
+    }
+
+    nav ul li a:hover,
+    nav ul li a.active {
+      color: var(--text);
+      background: var(--card-bg);
+    }
+
+    /* ======================== HERO ======================== */
+    .hero {
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      text-align: center;
+      padding: 6rem 2rem 4rem;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .hero::before {
+      content: '';
+      position: absolute;
+      width: 600px;
+      height: 600px;
+      background: radial-gradient(circle, rgba(233, 69, 96, 0.15), transparent 70%);
+      top: -100px;
+      right: -100px;
+      pointer-events: none;
+    }
+
+    .hero::after {
+      content: '';
+      position: absolute;
+      width: 500px;
+      height: 500px;
+      background: radial-gradient(circle, rgba(15, 52, 96, 0.25), transparent 70%);
+      bottom: -100px;
+      left: -100px;
+      pointer-events: none;
+    }
+
+    .hero .badge {
+      display: inline-block;
+      background: rgba(233, 69, 96, 0.15);
+      color: var(--highlight-light);
+      font-size: 0.78rem;
+      font-weight: 600;
+      padding: 0.4rem 1.2rem;
+      border-radius: 50px;
+      border: 1px solid rgba(233, 69, 96, 0.25);
+      margin-bottom: 2rem;
+      letter-spacing: 1px;
+      text-transform: uppercase;
+    }
+
+    .hero h1 {
+      font-size: clamp(2.5rem, 6vw, 4.5rem);
+      font-weight: 900;
+      line-height: 1.1;
+      margin-bottom: 1.5rem;
+      letter-spacing: -2px;
+    }
+
+    .hero h1 span {
+      background: var(--gradient-1);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+    }
+
+    .hero p {
+      font-size: 1.15rem;
+      color: var(--text-muted);
+      max-width: 600px;
+      margin-bottom: 2.5rem;
+    }
+
+    .hero-stats {
+      display: flex;
+      gap: 3rem;
+      margin-top: 1rem;
+    }
+
+    .hero-stats .stat {
+      text-align: center;
+    }
+
+    .hero-stats .stat-value {
+      font-size: 2.5rem;
+      font-weight: 800;
+      background: var(--gradient-1);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+    }
+
+    .hero-stats .stat-label {
+      font-size: 0.8rem;
+      color: var(--text-muted);
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      font-weight: 500;
+    }
+
+    /* ======================== SECTIONS ======================== */
+    section {
+      padding: 5rem 2rem;
+      max-width: 1100px;
+      margin: 0 auto;
+    }
+
+    .section-label {
+      display: inline-block;
+      font-size: 0.72rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 2px;
+      color: var(--highlight);
+      margin-bottom: 0.75rem;
+    }
+
+    .section-title {
+      font-size: clamp(1.8rem, 4vw, 2.6rem);
+      font-weight: 800;
+      letter-spacing: -1px;
+      margin-bottom: 1rem;
+    }
+
+    .section-desc {
+      color: var(--text-muted);
+      font-size: 1.05rem;
+      max-width: 650px;
+      margin-bottom: 3rem;
+    }
+
+    /* ======================== CARDS ======================== */
+    .cards-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+      gap: 1.5rem;
+    }
+
+    .card {
+      background: var(--card-bg);
+      border: 1px solid var(--card-border);
+      border-radius: 16px;
+      padding: 2rem;
+      transition: all 0.3s;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .card:hover {
+      border-color: rgba(233, 69, 96, 0.3);
+      transform: translateY(-4px);
+      box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+    }
+
+    .card-icon {
+      width: 48px;
+      height: 48px;
+      border-radius: 12px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1.4rem;
+      margin-bottom: 1.25rem;
+      background: rgba(233, 69, 96, 0.12);
+    }
+
+    .card h3 {
+      font-size: 1.15rem;
+      font-weight: 700;
+      margin-bottom: 0.6rem;
+    }
+
+    .card p {
+      color: var(--text-muted);
+      font-size: 0.9rem;
+      line-height: 1.6;
+    }
+
+    .card ul {
+      list-style: none;
+      margin-top: 1rem;
+    }
+
+    .card ul li {
+      color: var(--text-muted);
+      font-size: 0.88rem;
+      padding: 0.35rem 0;
+      padding-left: 1.4rem;
+      position: relative;
+    }
+
+    .card ul li::before {
+      content: '→';
+      position: absolute;
+      left: 0;
+      color: var(--highlight);
+      font-weight: 700;
+    }
+
+    /* ======================== ARCHITECTURE ======================== */
+    .arch-diagram {
+      background: var(--card-bg);
+      border: 1px solid var(--card-border);
+      border-radius: 16px;
+      padding: 3rem 2rem;
+      text-align: center;
+      margin-bottom: 2rem;
+    }
+
+    .arch-flow {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 1rem;
+      flex-wrap: wrap;
+      margin: 2rem 0;
+    }
+
+    .arch-box {
+      background: rgba(233, 69, 96, 0.1);
+      border: 1px solid rgba(233, 69, 96, 0.25);
+      padding: 1rem 1.8rem;
+      border-radius: 12px;
+      font-weight: 600;
+      font-size: 0.9rem;
+      min-width: 160px;
+    }
+
+    .arch-box.backend {
+      background: rgba(15, 52, 96, 0.25);
+      border-color: rgba(15, 52, 96, 0.4);
+    }
+
+    .arch-box.db {
+      background: rgba(46, 213, 115, 0.1);
+      border-color: rgba(46, 213, 115, 0.25);
+    }
+
+    .arch-arrow {
+      font-size: 1.5rem;
+      color: var(--text-muted);
+    }
+
+    /* ======================== FLOW ======================== */
+    .flow-steps {
+      position: relative;
+      padding-left: 2rem;
+    }
+
+    .flow-steps::before {
+      content: '';
+      position: absolute;
+      left: 7px;
+      top: 0;
+      bottom: 0;
+      width: 2px;
+      background: linear-gradient(to bottom, var(--highlight), var(--accent));
+    }
+
+    .flow-step {
+      position: relative;
+      padding: 1rem 0 1.5rem 2rem;
+    }
+
+    .flow-step::before {
+      content: '';
+      position: absolute;
+      left: -2rem;
+      top: 1.35rem;
+      width: 16px;
+      height: 16px;
+      border-radius: 50%;
+      background: var(--highlight);
+      border: 3px solid var(--primary);
+    }
+
+    .flow-step h4 {
+      font-size: 1rem;
+      font-weight: 700;
+      margin-bottom: 0.3rem;
+    }
+
+    .flow-step p {
+      color: var(--text-muted);
+      font-size: 0.88rem;
+    }
+
+    /* ======================== TABLE ======================== */
+    .table-wrap {
+      overflow-x: auto;
+      border-radius: 16px;
+      border: 1px solid var(--card-border);
+      margin-bottom: 2rem;
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+    }
+
+    thead {
+      background: rgba(233, 69, 96, 0.1);
+    }
+
+    th {
+      text-align: left;
+      padding: 1rem 1.5rem;
+      font-size: 0.8rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      color: var(--highlight-light);
+    }
+
+    td {
+      padding: 1rem 1.5rem;
+      font-size: 0.92rem;
+      border-top: 1px solid var(--card-border);
+      color: var(--text-muted);
+    }
+
+    tr:hover td {
+      background: var(--card-bg);
+    }
+
+    .total-row td {
+      font-weight: 700;
+      color: var(--text);
+      background: rgba(233, 69, 96, 0.06);
+      font-size: 1rem;
+    }
+
+    /* ======================== ENTITIES ======================== */
+    .entity-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+      gap: 1.5rem;
+    }
+
+    .entity-card {
+      background: var(--card-bg);
+      border: 1px solid var(--card-border);
+      border-radius: 16px;
+      overflow: hidden;
+    }
+
+    .entity-card .entity-header {
+      background: rgba(15, 52, 96, 0.25);
+      padding: 1rem 1.5rem;
+      font-weight: 700;
+      font-size: 0.95rem;
+      border-bottom: 1px solid var(--card-border);
+    }
+
+    .entity-card .entity-fields {
+      padding: 1rem 1.5rem;
+    }
+
+    .entity-card .field {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      padding: 0.35rem 0;
+      font-size: 0.85rem;
+      color: var(--text-muted);
+    }
+
+    .entity-card .field::before {
+      content: '';
+      width: 6px;
+      height: 6px;
+      border-radius: 50%;
+      background: var(--highlight);
+      flex-shrink: 0;
+    }
+
+    .field code {
+      font-family: 'SF Mono', 'Fira Code', monospace;
+      background: rgba(233, 69, 96, 0.1);
+      padding: 0.1rem 0.5rem;
+      border-radius: 4px;
+      font-size: 0.82rem;
+      color: var(--highlight-light);
+    }
+
+    /* ======================== STRUCTURE ======================== */
+    .file-tree {
+      background: var(--card-bg);
+      border: 1px solid var(--card-border);
+      border-radius: 16px;
+      padding: 2rem;
+      font-family: 'SF Mono', 'Fira Code', monospace;
+      font-size: 0.85rem;
+      line-height: 2;
+      color: var(--text-muted);
+    }
+
+    .file-tree .folder {
+      color: var(--warning);
+      font-weight: 600;
+    }
+
+    .file-tree .file {
+      color: var(--text-muted);
+    }
+
+    .file-tree .indent {
+      display: inline-block;
+      width: 1.5rem;
+    }
+
+    /* ======================== STATUS BADGES ======================== */
+    .status-list {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.75rem;
+      margin: 1.5rem 0;
+    }
+
+    .status-badge {
+      padding: 0.5rem 1.2rem;
+      border-radius: 50px;
+      font-size: 0.82rem;
+      font-weight: 600;
+      letter-spacing: 0.5px;
+    }
+
+    .status-badge.pending {
+      background: rgba(255, 165, 2, 0.12);
+      color: var(--warning);
+      border: 1px solid rgba(255, 165, 2, 0.25);
+    }
+
+    .status-badge.paid {
+      background: rgba(46, 213, 115, 0.12);
+      color: var(--success);
+      border: 1px solid rgba(46, 213, 115, 0.25);
+    }
+
+    .status-badge.failed {
+      background: rgba(255, 71, 87, 0.12);
+      color: var(--danger);
+      border: 1px solid rgba(255, 71, 87, 0.25);
+    }
+
+    .status-badge.canceled {
+      background: rgba(164, 176, 190, 0.12);
+      color: var(--text-muted);
+      border: 1px solid rgba(164, 176, 190, 0.25);
+    }
+
+    .status-badge.retrying {
+      background: rgba(233, 69, 96, 0.12);
+      color: var(--highlight-light);
+      border: 1px solid rgba(233, 69, 96, 0.25);
+    }
+
+    /* ======================== WEBHOOK EVENTS ======================== */
+    .event-list {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+      gap: 1rem;
+      margin: 1.5rem 0;
+    }
+
+    .event-item {
+      background: var(--card-bg);
+      border: 1px solid var(--card-border);
+      padding: 1.2rem;
+      border-radius: 12px;
+      font-family: 'SF Mono', 'Fira Code', monospace;
+      font-size: 0.85rem;
+    }
+
+    .event-item .event-name {
+      color: var(--highlight-light);
+      font-weight: 600;
+      margin-bottom: 0.4rem;
+    }
+
+    .event-item .event-desc {
+      color: var(--text-muted);
+      font-family: 'Inter', sans-serif;
+      font-size: 0.8rem;
+    }
+
+    /* ======================== RISKS ======================== */
+    .risk-cards {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+      gap: 1.5rem;
+    }
+
+    .risk-card {
+      background: var(--card-bg);
+      border: 1px solid var(--card-border);
+      border-radius: 16px;
+      padding: 1.75rem;
+      border-left: 4px solid var(--danger);
+    }
+
+    .risk-card h4 {
+      font-size: 1rem;
+      font-weight: 700;
+      margin-bottom: 0.5rem;
+    }
+
+    .risk-card p {
+      color: var(--text-muted);
+      font-size: 0.88rem;
+    }
+
+    .risk-card .impact {
+      display: inline-block;
+      margin-top: 0.75rem;
+      font-size: 0.78rem;
+      font-weight: 600;
+      color: var(--danger);
+      background: rgba(255, 71, 87, 0.1);
+      padding: 0.25rem 0.8rem;
+      border-radius: 50px;
+    }
+
+    /* ======================== BEST PRACTICES ======================== */
+    .practices-list {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+      gap: 1rem;
+    }
+
+    .practice-item {
+      display: flex;
+      align-items: flex-start;
+      gap: 1rem;
+      background: var(--card-bg);
+      border: 1px solid var(--card-border);
+      padding: 1.25rem;
+      border-radius: 12px;
+    }
+
+    .practice-item .check {
+      flex-shrink: 0;
+      width: 28px;
+      height: 28px;
+      border-radius: 8px;
+      background: rgba(46, 213, 115, 0.12);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: var(--success);
+      font-weight: 700;
+      font-size: 0.85rem;
+    }
+
+    .practice-item p {
+      color: var(--text-muted);
+      font-size: 0.9rem;
+    }
+
+    /* ======================== ROADMAP ======================== */
+    .roadmap {
+      position: relative;
+    }
+
+    .roadmap-item {
+      display: flex;
+      gap: 1.5rem;
+      margin-bottom: 1.5rem;
+      align-items: flex-start;
+    }
+
+    .roadmap-number {
+      flex-shrink: 0;
+      width: 44px;
+      height: 44px;
+      border-radius: 12px;
+      background: var(--gradient-1);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: 800;
+      font-size: 1.1rem;
+    }
+
+    .roadmap-content {
+      flex: 1;
+      background: var(--card-bg);
+      border: 1px solid var(--card-border);
+      padding: 1.25rem 1.5rem;
+      border-radius: 12px;
+    }
+
+    .roadmap-content h4 {
+      font-weight: 700;
+      margin-bottom: 0.3rem;
+    }
+
+    .roadmap-content p {
+      color: var(--text-muted);
+      font-size: 0.88rem;
+    }
+
+    /* ======================== CTA ======================== */
+    .cta-section {
+      text-align: center;
+      padding: 6rem 2rem;
+      position: relative;
+    }
+
+    .cta-section::before {
+      content: '';
+      position: absolute;
+      width: 600px;
+      height: 600px;
+      background: radial-gradient(circle, rgba(233, 69, 96, 0.1), transparent 70%);
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      pointer-events: none;
+    }
+
+    .cta-section h2 {
+      font-size: clamp(2rem, 4vw, 3rem);
+      font-weight: 800;
+      margin-bottom: 1rem;
+      letter-spacing: -1px;
+    }
+
+    .cta-section p {
+      color: var(--text-muted);
+      font-size: 1.1rem;
+      margin-bottom: 2rem;
+    }
+
+    .cta-section .total-box {
+      display: inline-block;
+      background: var(--gradient-1);
+      padding: 1.5rem 3rem;
+      border-radius: 16px;
+      margin-bottom: 2rem;
+    }
+
+    .cta-section .total-box .label {
+      font-size: 0.8rem;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      opacity: 0.8;
+    }
+
+    .cta-section .total-box .value {
+      font-size: 3rem;
+      font-weight: 900;
+      letter-spacing: -1px;
+    }
+
+    /* ======================== SCOPE SECTIONS ======================== */
+    .scope-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 1.5rem;
+      margin-bottom: 2rem;
+    }
+
+    .scope-card {
+      background: var(--card-bg);
+      border: 1px solid var(--card-border);
+      border-radius: 16px;
+      padding: 2rem;
+    }
+
+    .scope-card.included {
+      border-left: 4px solid var(--success);
+    }
+
+    .scope-card.excluded {
+      border-left: 4px solid var(--danger);
+    }
+
+    .scope-card h3 {
+      font-size: 1.1rem;
+      font-weight: 700;
+      margin-bottom: 1rem;
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+
+    .scope-card ul {
+      list-style: none;
+    }
+
+    .scope-card ul li {
+      padding: 0.4rem 0;
+      padding-left: 1.5rem;
+      position: relative;
+      color: var(--text-muted);
+      font-size: 0.9rem;
+    }
+
+    .scope-card.included ul li::before {
+      content: '✓';
+      position: absolute;
+      left: 0;
+      color: var(--success);
+      font-weight: 700;
+    }
+
+    .scope-card.excluded ul li::before {
+      content: '✗';
+      position: absolute;
+      left: 0;
+      color: var(--danger);
+      font-weight: 700;
+    }
+
+    /* ======================== DELIVERABLES ======================== */
+    .deliverables-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+      gap: 1.5rem;
+    }
+
+    .deliverable-card {
+      background: var(--card-bg);
+      border: 1px solid var(--card-border);
+      border-radius: 16px;
+      padding: 1.75rem;
+      text-align: center;
+    }
+
+    .deliverable-card .icon {
+      font-size: 2rem;
+      margin-bottom: 1rem;
+    }
+
+    .deliverable-card h4 {
+      font-weight: 700;
+      margin-bottom: 0.5rem;
+    }
+
+    .deliverable-card p {
+      color: var(--text-muted);
+      font-size: 0.85rem;
+    }
+
+    /* ======================== TIMELINE ======================== */
+    .timeline-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+      gap: 1rem;
+    }
+
+    .timeline-week {
+      background: var(--card-bg);
+      border: 1px solid var(--card-border);
+      border-radius: 16px;
+      overflow: hidden;
+    }
+
+    .timeline-week .week-header {
+      background: rgba(15, 52, 96, 0.3);
+      padding: 0.85rem 1.25rem;
+      font-weight: 700;
+      font-size: 0.85rem;
+      border-bottom: 1px solid var(--card-border);
+    }
+
+    .timeline-week .week-body {
+      padding: 1rem 1.25rem;
+    }
+
+    .timeline-week .week-body li {
+      list-style: none;
+      padding: 0.3rem 0;
+      font-size: 0.84rem;
+      color: var(--text-muted);
+      padding-left: 1.2rem;
+      position: relative;
+    }
+
+    .timeline-week .week-body li::before {
+      content: '▸';
+      position: absolute;
+      left: 0;
+      color: var(--highlight);
+    }
+
+    /* ======================== FOOTER ======================== */
+    footer {
+      text-align: center;
+      padding: 3rem 2rem;
+      border-top: 1px solid var(--card-border);
+      color: var(--text-muted);
+      font-size: 0.85rem;
+    }
+
+    /* ======================== DIVIDER ======================== */
+    .divider {
+      height: 1px;
+      background: linear-gradient(to right, transparent, var(--card-border), transparent);
+      margin: 0 auto;
+      max-width: 1100px;
+    }
+
+    /* ======================== RESPONSIVE ======================== */
+    @media (max-width: 768px) {
+      nav ul {
+        display: none;
+      }
+
+      .hero-stats {
+        flex-direction: column;
+        gap: 1.5rem;
+      }
+
+      .scope-grid {
+        grid-template-columns: 1fr;
+      }
+
+      .arch-flow {
+        flex-direction: column;
+      }
+
+      section {
+        padding: 3rem 1.25rem;
+      }
+    }
+
+    /* ======================== ANIMATIONS ======================== */
+    .fade-in {
+      opacity: 0;
+      transform: translateY(30px);
+      transition: opacity 0.6s ease, transform 0.6s ease;
+    }
+
+    .fade-in.visible {
+      opacity: 1;
+      transform: translateY(0);
+    }
+
+    /* ======================== PRINT ======================== */
+    @media print {
+      nav { display: none; }
+      .hero { min-height: auto; padding: 2rem; }
+      section { padding: 2rem 1rem; }
+      .card:hover { transform: none; box-shadow: none; }
+      body { background: #fff; color: #1a1a2e; }
+      .section-title, .hero h1 { color: #1a1a2e; }
+      .card, .entity-card, .risk-card, .scope-card, .deliverable-card, .timeline-week, .file-tree, .arch-diagram, .practice-item, .roadmap-content {
+        background: #f8f8f8;
+        border-color: #ddd;
+      }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- ==================== NAV ==================== -->
+  <nav>
+    <div class="brand">Sendero × Toku</div>
+    <ul>
+      <li><a href="#objetivo">Objetivo</a></li>
+      <li><a href="#alcance">Alcance</a></li>
+      <li><a href="#arquitectura">Arquitectura</a></li>
+      <li><a href="#modelos">Modelos</a></li>
+      <li><a href="#flujos">Flujos</a></li>
+      <li><a href="#webhooks">Webhooks</a></li>
+      <li><a href="#frontend">Frontend</a></li>
+      <li><a href="#estimacion">Estimacion</a></li>
+      <li><a href="#roadmap">Roadmap</a></li>
+      <li><a href="#propuesta">Propuesta</a></li>
+    </ul>
+  </nav>
+
+  <!-- ==================== HERO ==================== -->
+  <header class="hero" id="inicio">
+    <div class="badge">Propuesta Tecnica</div>
+    <h1>Integracion <span>Pagos &<br>Suscripciones</span></h1>
+    <p>Plataforma Sendero + API Toku para habilitar pagos unicos y suscripciones recurrentes con arquitectura MVC en Laravel.</p>
+    <div class="hero-stats">
+      <div class="stat">
+        <div class="stat-value">100</div>
+        <div class="stat-label">Horas totales</div>
+      </div>
+      <div class="stat">
+        <div class="stat-value">2</div>
+        <div class="stat-label">Modulos</div>
+      </div>
+      <div class="stat">
+        <div class="stat-value">7</div>
+        <div class="stat-label">Fases</div>
+      </div>
+    </div>
+  </header>
+
+  <div class="divider"></div>
+
+  <!-- ==================== OBJETIVO ==================== -->
+  <section id="objetivo" class="fade-in">
+    <span class="section-label">01 — Objetivo</span>
+    <h2 class="section-title">Que vamos a construir</h2>
+    <p class="section-desc">Implementar una integracion backend + frontend que permita gestionar pagos y suscripciones de forma segura, escalable y desacoplada.</p>
+    <div class="cards-grid">
+      <div class="card">
+        <div class="card-icon">👤</div>
+        <h3>Registro de Clientes</h3>
+        <p>Creacion y gestion de clientes en Toku, vinculados a los usuarios de la plataforma Sendero.</p>
+      </div>
+      <div class="card">
+        <div class="card-icon">💳</div>
+        <h3>Metodos de Pago</h3>
+        <p>Registro y tokenizacion de tarjetas para realizar cobros de forma segura.</p>
+      </div>
+      <div class="card">
+        <div class="card-icon">⚡</div>
+        <h3>Pagos Unicos</h3>
+        <p>Ejecucion de cobros inmediatos a traves del modulo Pago Rapido.</p>
+      </div>
+      <div class="card">
+        <div class="card-icon">🔄</div>
+        <h3>Suscripciones</h3>
+        <p>Gestion completa del ciclo de vida: creacion, listado, cancelacion y estados.</p>
+      </div>
+      <div class="card">
+        <div class="card-icon">📡</div>
+        <h3>Webhooks</h3>
+        <p>Recepcion de eventos en tiempo real para sincronizar estados de pago.</p>
+      </div>
+      <div class="card">
+        <div class="card-icon">📊</div>
+        <h3>Conciliacion</h3>
+        <p>Conciliacion de estados de pago con auditoria completa de eventos.</p>
+      </div>
+    </div>
+  </section>
+
+  <div class="divider"></div>
+
+  <!-- ==================== ALCANCE ==================== -->
+  <section id="alcance" class="fade-in">
+    <span class="section-label">02 — Alcance Funcional</span>
+    <h2 class="section-title">Modulos del Sistema</h2>
+    <p class="section-desc">Dos modulos principales con responsabilidades claras y bien definidas.</p>
+    <div class="cards-grid">
+      <div class="card">
+        <div class="card-icon">⚡</div>
+        <h3>Modulo: Pago Rapido</h3>
+        <p>Permite ejecutar pagos unicos inmediatos.</p>
+        <ul>
+          <li>Registro de cliente en Toku</li>
+          <li>Registro de metodo de pago (tarjeta)</li>
+          <li>Cobro inmediato con confirmacion</li>
+          <li>Manejo de errores y estados</li>
+        </ul>
+      </div>
+      <div class="card">
+        <div class="card-icon">🔄</div>
+        <h3>Modulo: Mi Sendero</h3>
+        <p>Gestion completa de suscripciones recurrentes.</p>
+        <ul>
+          <li>Crear nuevas suscripciones</li>
+          <li>Listar suscripciones activas</li>
+          <li>Cancelar suscripciones</li>
+          <li>Visualizar estados de pago</li>
+        </ul>
+      </div>
+    </div>
+  </section>
+
+  <div class="divider"></div>
+
+  <!-- ==================== ARQUITECTURA ==================== -->
+  <section id="arquitectura" class="fade-in">
+    <span class="section-label">03 — Arquitectura</span>
+    <h2 class="section-title">Arquitectura MVC (Laravel)</h2>
+    <p class="section-desc">Arquitectura backend MVC con cliente HTTP desacoplado para la integracion con Toku.</p>
+
+    <div class="arch-diagram">
+      <div class="arch-flow">
+        <div class="arch-box">Frontend (React)</div>
+        <span class="arch-arrow">→</span>
+        <div class="arch-box backend">Backend API (Laravel)</div>
+        <span class="arch-arrow">→</span>
+        <div class="arch-box">API Toku</div>
+      </div>
+      <div class="arch-flow">
+        <div class="arch-box backend">Controllers</div>
+        <span class="arch-arrow">→</span>
+        <div class="arch-box backend">Services</div>
+        <span class="arch-arrow">→</span>
+        <div class="arch-box backend">TokuClient</div>
+      </div>
+      <div class="arch-flow" style="margin-top: 1rem;">
+        <div class="arch-box backend">Webhook Controller</div>
+        <span class="arch-arrow">←</span>
+        <div class="arch-box">Toku Webhooks</div>
+      </div>
+      <div class="arch-flow" style="margin-top: 1rem;">
+        <div class="arch-box backend">Eloquent Models</div>
+        <span class="arch-arrow">↔</span>
+        <div class="arch-box db">PostgreSQL</div>
+      </div>
+    </div>
+
+    <h3 style="margin-bottom: 1rem; font-size: 1.1rem;">Patrones Utilizados</h3>
+    <div class="cards-grid">
+      <div class="card">
+        <h3>MVC (Laravel)</h3>
+        <p>Modelo-Vista-Controlador nativo de Laravel con separacion clara de responsabilidades.</p>
+      </div>
+      <div class="card">
+        <h3>Service Layer</h3>
+        <p>Logica de negocio encapsulada en servicios reutilizables fuera de los controladores.</p>
+      </div>
+      <div class="card">
+        <h3>HTTP Client (Adapter)</h3>
+        <p>Cliente HTTP desacoplado para la integracion con la API externa de Toku.</p>
+      </div>
+    </div>
+  </section>
+
+  <div class="divider"></div>
+
+  <!-- ==================== MODELOS ==================== -->
+  <section id="modelos" class="fade-in">
+    <span class="section-label">04 — Modelos de Datos</span>
+    <h2 class="section-title">Entidades del Dominio</h2>
+    <p class="section-desc">Modelos Eloquent que representan las entidades principales del sistema de pagos.</p>
+
+    <div class="entity-grid">
+      <div class="entity-card">
+        <div class="entity-header">Customer</div>
+        <div class="entity-fields">
+          <div class="field"><code>id</code></div>
+          <div class="field"><code>external_id</code> (Toku)</div>
+          <div class="field"><code>rut</code></div>
+          <div class="field"><code>email</code></div>
+        </div>
+      </div>
+      <div class="entity-card">
+        <div class="entity-header">PaymentMethod</div>
+        <div class="entity-fields">
+          <div class="field"><code>id</code></div>
+          <div class="field"><code>customer_id</code></div>
+          <div class="field"><code>type</code></div>
+          <div class="field"><code>last4</code></div>
+          <div class="field"><code>status</code></div>
+        </div>
+      </div>
+      <div class="entity-card">
+        <div class="entity-header">Subscription</div>
+        <div class="entity-fields">
+          <div class="field"><code>id</code></div>
+          <div class="field"><code>customer_id</code></div>
+          <div class="field"><code>external_id</code></div>
+          <div class="field"><code>plan</code></div>
+          <div class="field"><code>status</code></div>
+        </div>
+      </div>
+      <div class="entity-card">
+        <div class="entity-header">Payment</div>
+        <div class="entity-fields">
+          <div class="field"><code>id</code></div>
+          <div class="field"><code>subscription_id</code></div>
+          <div class="field"><code>external_id</code></div>
+          <div class="field"><code>amount</code></div>
+          <div class="field"><code>status</code></div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <div class="divider"></div>
+
+  <!-- ==================== ESTRUCTURA ==================== -->
+  <section class="fade-in">
+    <span class="section-label">05 — Estructura del Proyecto</span>
+    <h2 class="section-title">Organizacion del Codigo</h2>
+    <p class="section-desc">Estructura de archivos Laravel siguiendo convenciones MVC.</p>
+
+    <div class="file-tree">
+      <div><span class="folder">app/</span></div>
+      <div><span class="indent"></span><span class="folder">Http/</span></div>
+      <div><span class="indent"></span><span class="indent"></span><span class="folder">Controllers/</span></div>
+      <div><span class="indent"></span><span class="indent"></span><span class="indent"></span><span class="file">PaymentController.php</span></div>
+      <div><span class="indent"></span><span class="indent"></span><span class="indent"></span><span class="file">SubscriptionController.php</span></div>
+      <div><span class="indent"></span><span class="indent"></span><span class="indent"></span><span class="file">CustomerController.php</span></div>
+      <div><span class="indent"></span><span class="indent"></span><span class="indent"></span><span class="file">WebhookController.php</span></div>
+      <div><span class="indent"></span><span class="indent"></span><span class="folder">Requests/</span></div>
+      <div><span class="indent"></span><span class="indent"></span><span class="indent"></span><span class="file">QuickPayRequest.php</span></div>
+      <div><span class="indent"></span><span class="indent"></span><span class="indent"></span><span class="file">SubscriptionRequest.php</span></div>
+      <div><span class="indent"></span><span class="folder">Models/</span></div>
+      <div><span class="indent"></span><span class="indent"></span><span class="file">Customer.php</span></div>
+      <div><span class="indent"></span><span class="indent"></span><span class="file">PaymentMethod.php</span></div>
+      <div><span class="indent"></span><span class="indent"></span><span class="file">Subscription.php</span></div>
+      <div><span class="indent"></span><span class="indent"></span><span class="file">Payment.php</span></div>
+      <div><span class="indent"></span><span class="folder">Services/</span></div>
+      <div><span class="indent"></span><span class="indent"></span><span class="file">TokuClient.php</span></div>
+      <div><span class="indent"></span><span class="indent"></span><span class="file">PaymentService.php</span></div>
+      <div><span class="indent"></span><span class="indent"></span><span class="file">SubscriptionService.php</span></div>
+      <div><span class="indent"></span><span class="indent"></span><span class="file">CustomerService.php</span></div>
+      <div><span class="indent"></span><span class="indent"></span><span class="file">WebhookService.php</span></div>
+      <div><span class="folder">config/</span></div>
+      <div><span class="indent"></span><span class="file">toku.php</span></div>
+      <div><span class="folder">database/</span></div>
+      <div><span class="indent"></span><span class="folder">migrations/</span></div>
+      <div><span class="indent"></span><span class="indent"></span><span class="file">create_customers_table.php</span></div>
+      <div><span class="indent"></span><span class="indent"></span><span class="file">create_payment_methods_table.php</span></div>
+      <div><span class="indent"></span><span class="indent"></span><span class="file">create_subscriptions_table.php</span></div>
+      <div><span class="indent"></span><span class="indent"></span><span class="file">create_payments_table.php</span></div>
+      <div><span class="folder">routes/</span></div>
+      <div><span class="indent"></span><span class="file">api.php</span></div>
+    </div>
+  </section>
+
+  <div class="divider"></div>
+
+  <!-- ==================== SEGURIDAD ==================== -->
+  <section class="fade-in">
+    <span class="section-label">06 — Seguridad</span>
+    <h2 class="section-title">Configuracion y Seguridad</h2>
+    <p class="section-desc">Variables de entorno y configuracion de seguridad separadas por ambiente.</p>
+
+    <div class="cards-grid">
+      <div class="card">
+        <h3>Variables de Entorno</h3>
+        <div class="file-tree" style="margin-top: 1rem; border-radius: 8px; padding: 1.25rem;">
+          <div><span style="color: var(--highlight);">TOKU_API_KEY</span>=xxxxxxxxx</div>
+          <div><span style="color: var(--highlight);">TOKU_BASE_URL</span>=https://api.toku.cl</div>
+          <div><span style="color: var(--highlight);">TOKU_WEBHOOK_SECRET</span>=xxxxxxxxx</div>
+        </div>
+      </div>
+      <div class="card">
+        <h3>Ambientes</h3>
+        <ul>
+          <li><strong>Sandbox:</strong> para desarrollo y pruebas</li>
+          <li><strong>Produccion:</strong> para cobros reales</li>
+        </ul>
+        <p style="margin-top: 1rem;">Configuracion gestionada via <code style="background: rgba(233,69,96,0.1); padding: 0.1rem 0.5rem; border-radius: 4px; font-size: 0.82rem; color: var(--highlight-light);">config/toku.php</code></p>
+      </div>
+    </div>
+  </section>
+
+  <div class="divider"></div>
+
+  <!-- ==================== FLUJOS ==================== -->
+  <section id="flujos" class="fade-in">
+    <span class="section-label">07 — Flujos</span>
+    <h2 class="section-title">Flujos de Operacion</h2>
+
+    <div class="cards-grid" style="margin-bottom: 3rem;">
+      <div class="card">
+        <h3>Pago Rapido</h3>
+        <p style="margin-bottom: 0.5rem;"><code style="background: rgba(233,69,96,0.1); padding: 0.2rem 0.6rem; border-radius: 4px; font-size: 0.82rem; color: var(--highlight-light);">POST /api/payments/quick-pay</code></p>
+        <div class="flow-steps" style="margin-top: 1.5rem;">
+          <div class="flow-step">
+            <h4>Paso 1</h4>
+            <p>Crear cliente en Toku (si no existe)</p>
+          </div>
+          <div class="flow-step">
+            <h4>Paso 2</h4>
+            <p>Registrar metodo de pago (token tarjeta)</p>
+          </div>
+          <div class="flow-step">
+            <h4>Paso 3</h4>
+            <p>Ejecutar pago inmediato</p>
+          </div>
+          <div class="flow-step">
+            <h4>Paso 4</h4>
+            <p>Guardar estado local en base de datos</p>
+          </div>
+        </div>
+      </div>
+
+      <div class="card">
+        <h3>Suscripciones</h3>
+        <p style="margin-bottom: 0.5rem;">
+          <code style="background: rgba(233,69,96,0.1); padding: 0.2rem 0.6rem; border-radius: 4px; font-size: 0.82rem; color: var(--highlight-light);">POST /api/subscriptions</code><br>
+          <code style="background: rgba(233,69,96,0.1); padding: 0.2rem 0.6rem; border-radius: 4px; font-size: 0.82rem; color: var(--highlight-light);">GET /api/subscriptions</code><br>
+          <code style="background: rgba(233,69,96,0.1); padding: 0.2rem 0.6rem; border-radius: 4px; font-size: 0.82rem; color: var(--highlight-light);">DELETE /api/subscriptions/{id}</code>
+        </p>
+        <div class="flow-steps" style="margin-top: 1.5rem;">
+          <div class="flow-step">
+            <h4>Paso 1</h4>
+            <p>Crear cliente en Toku</p>
+          </div>
+          <div class="flow-step">
+            <h4>Paso 2</h4>
+            <p>Registrar metodo de pago</p>
+          </div>
+          <div class="flow-step">
+            <h4>Paso 3</h4>
+            <p>Crear suscripcion con plan asociado</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <div class="divider"></div>
+
+  <!-- ==================== WEBHOOKS ==================== -->
+  <section id="webhooks" class="fade-in">
+    <span class="section-label">08 — Webhooks (Critico)</span>
+    <h2 class="section-title">Recepcion de Eventos</h2>
+    <p class="section-desc">Los webhooks son la <strong style="color: var(--highlight-light);">fuente oficial de estado</strong> de pagos. Endpoint: <code style="background: rgba(233,69,96,0.1); padding: 0.2rem 0.6rem; border-radius: 4px; font-size: 0.82rem; color: var(--highlight-light);">POST /api/webhooks/toku</code></p>
+
+    <h3 style="margin-bottom: 1rem;">Eventos Esperados</h3>
+    <div class="event-list">
+      <div class="event-item">
+        <div class="event-name">payment.succeeded</div>
+        <div class="event-desc">Pago procesado correctamente</div>
+      </div>
+      <div class="event-item">
+        <div class="event-name">payment.failed</div>
+        <div class="event-desc">Pago rechazado o fallido</div>
+      </div>
+      <div class="event-item">
+        <div class="event-name">subscription.updated</div>
+        <div class="event-desc">Suscripcion actualizada</div>
+      </div>
+      <div class="event-item">
+        <div class="event-name">subscription.canceled</div>
+        <div class="event-desc">Suscripcion cancelada</div>
+      </div>
+    </div>
+
+    <h3 style="margin: 2rem 0 1rem;">Validaciones Requeridas</h3>
+    <div class="cards-grid">
+      <div class="card">
+        <h3>Firma del Webhook</h3>
+        <p>Validacion criptografica de la firma usando <code style="background: rgba(233,69,96,0.1); padding: 0.1rem 0.5rem; border-radius: 4px; font-size: 0.82rem; color: var(--highlight-light);">TOKU_WEBHOOK_SECRET</code> para asegurar autenticidad.</p>
+      </div>
+      <div class="card">
+        <h3>Idempotencia</h3>
+        <p>Prevencion de procesamiento duplicado de eventos mediante registro de IDs unicos.</p>
+      </div>
+      <div class="card">
+        <h3>Registro de Eventos</h3>
+        <p>Almacenamiento completo de cada evento recibido para auditoria y trazabilidad.</p>
+      </div>
+    </div>
+  </section>
+
+  <div class="divider"></div>
+
+  <!-- ==================== ESTADOS ==================== -->
+  <section class="fade-in">
+    <span class="section-label">09 — Estados</span>
+    <h2 class="section-title">Manejo de Estados de Pago</h2>
+    <p class="section-desc">Maquina de estados para el ciclo de vida de cada pago, con historial completo para auditoria.</p>
+
+    <div class="status-list">
+      <span class="status-badge pending">pending</span>
+      <span class="status-badge paid">paid</span>
+      <span class="status-badge failed">failed</span>
+      <span class="status-badge canceled">canceled</span>
+      <span class="status-badge retrying">retrying</span>
+    </div>
+
+    <div class="card" style="margin-top: 1.5rem;">
+      <h3>Historial de Eventos</h3>
+      <p>Se almacenara un log completo de transiciones de estado con timestamp, evento origen y metadata para garantizar trazabilidad total y facilitar la conciliacion.</p>
+    </div>
+  </section>
+
+  <div class="divider"></div>
+
+  <!-- ==================== FRONTEND ==================== -->
+  <section id="frontend" class="fade-in">
+    <span class="section-label">10 — Frontend</span>
+    <h2 class="section-title">Interfaces de Usuario</h2>
+    <p class="section-desc">Pantallas React para los dos modulos principales del sistema.</p>
+
+    <div class="cards-grid">
+      <div class="card">
+        <div class="card-icon">⚡</div>
+        <h3>Pantalla: Pago Rapido</h3>
+        <p>Formulario de pago unico.</p>
+        <ul>
+          <li>Campo monto</li>
+          <li>Campo RUT</li>
+          <li>Campo email</li>
+          <li>Token tarjeta (Toku.js)</li>
+          <li>Confirmacion de pago</li>
+          <li>Feedback de exito / error</li>
+        </ul>
+      </div>
+      <div class="card">
+        <div class="card-icon">🔄</div>
+        <h3>Pantalla: Mi Sendero</h3>
+        <p>Gestion de suscripciones.</p>
+        <ul>
+          <li>Listado de suscripciones activas</li>
+          <li>Formulario de creacion</li>
+          <li>Accion de cancelacion</li>
+          <li>Detalle de estados de pago</li>
+          <li>Historial de transacciones</li>
+        </ul>
+      </div>
+      <div class="card">
+        <div class="card-icon">🚨</div>
+        <h3>Manejo de Errores UX</h3>
+        <p>Experiencia de usuario ante escenarios de fallo.</p>
+        <ul>
+          <li>Pago rechazado por el emisor</li>
+          <li>Tarjeta invalida o expirada</li>
+          <li>Timeout del gateway de pago</li>
+          <li>Error de conexion</li>
+          <li>Mensajes claros y accionables</li>
+        </ul>
+      </div>
+    </div>
+  </section>
+
+  <div class="divider"></div>
+
+  <!-- ==================== ESTIMACION ==================== -->
+  <section id="estimacion" class="fade-in">
+    <span class="section-label">11 — Estimacion</span>
+    <h2 class="section-title">Estimacion de Esfuerzo</h2>
+    <p class="section-desc">Desglose detallado por area de trabajo.</p>
+
+    <div class="table-wrap">
+      <table>
+        <thead>
+          <tr>
+            <th>Area</th>
+            <th>Descripcion</th>
+            <th style="text-align: right;">Horas</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><strong>Backend - Integracion API</strong></td>
+            <td>Cliente HTTP Toku, Controllers, Services, validaciones</td>
+            <td style="text-align: right;">45</td>
+          </tr>
+          <tr>
+            <td><strong>Backend - Webhooks y Estados</strong></td>
+            <td>Receptor de webhooks, validacion de firma, idempotencia, maquina de estados</td>
+            <td style="text-align: right;">20</td>
+          </tr>
+          <tr>
+            <td><strong>Backend - Dominio Suscripciones</strong></td>
+            <td>CRUD de suscripciones, modelos, migraciones, relaciones</td>
+            <td style="text-align: right;">15</td>
+          </tr>
+          <tr>
+            <td><strong>Frontend</strong></td>
+            <td>Pantallas de pago rapido, gestion de suscripciones, manejo de errores</td>
+            <td style="text-align: right;">20</td>
+          </tr>
+          <tr class="total-row">
+            <td colspan="2">TOTAL</td>
+            <td style="text-align: right;">100 horas</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </section>
+
+  <div class="divider"></div>
+
+  <!-- ==================== RIESGOS ==================== -->
+  <section class="fade-in">
+    <span class="section-label">12 — Riesgos</span>
+    <h2 class="section-title">Riesgos Tecnicos</h2>
+    <p class="section-desc">Riesgos identificados y su impacto potencial en la integracion.</p>
+
+    <div class="risk-cards">
+      <div class="risk-card">
+        <h4>Webhooks Incorrectos</h4>
+        <p>Si los webhooks no se validan correctamente, se pueden generar estados inconsistentes entre la plataforma y Toku.</p>
+        <span class="impact">Impacto: Estados inconsistentes</span>
+      </div>
+      <div class="risk-card">
+        <h4>Falta de Idempotencia</h4>
+        <p>Sin control de idempotencia, eventos duplicados pueden generar cobros duplicados a los usuarios.</p>
+        <span class="impact">Impacto: Cobros duplicados</span>
+      </div>
+      <div class="risk-card">
+        <h4>Timeout del Gateway</h4>
+        <p>Timeouts en la comunicacion con Toku pueden dejar pagos en estado inconcluso sin respuesta al usuario.</p>
+        <span class="impact">Impacto: Pagos inconclusos</span>
+      </div>
+    </div>
+  </section>
+
+  <div class="divider"></div>
+
+  <!-- ==================== BUENAS PRACTICAS ==================== -->
+  <section class="fade-in">
+    <span class="section-label">13 — Buenas Practicas</span>
+    <h2 class="section-title">Recomendaciones</h2>
+
+    <div class="practices-list">
+      <div class="practice-item">
+        <div class="check">✓</div>
+        <p>Guardar siempre el <strong>external_id</strong> de Toku para cada entidad creada en la API externa.</p>
+      </div>
+      <div class="practice-item">
+        <div class="check">✓</div>
+        <p>Usar <strong>Webhooks como fuente de verdad</strong> para el estado de pagos y suscripciones.</p>
+      </div>
+      <div class="practice-item">
+        <div class="check">✓</div>
+        <p>Registrar todos los eventos recibidos para <strong>auditoria</strong> completa y trazabilidad.</p>
+      </div>
+      <div class="practice-item">
+        <div class="check">✓</div>
+        <p><strong>No almacenar credenciales</strong> en codigo fuente. Usar variables de entorno exclusivamente.</p>
+      </div>
+    </div>
+  </section>
+
+  <div class="divider"></div>
+
+  <!-- ==================== ROADMAP ==================== -->
+  <section id="roadmap" class="fade-in">
+    <span class="section-label">14 — Roadmap</span>
+    <h2 class="section-title">Fases de Implementacion</h2>
+    <p class="section-desc">Orden de ejecucion recomendado para la implementacion completa.</p>
+
+    <div class="roadmap">
+      <div class="roadmap-item">
+        <div class="roadmap-number">1</div>
+        <div class="roadmap-content">
+          <h4>Cliente API Toku</h4>
+          <p>Implementar TokuClient.php con metodos HTTP, timeout, retry y logging.</p>
+        </div>
+      </div>
+      <div class="roadmap-item">
+        <div class="roadmap-number">2</div>
+        <div class="roadmap-content">
+          <h4>Flujo Customer</h4>
+          <p>Modelo Customer, migracion, servicio y controlador para registro de clientes.</p>
+        </div>
+      </div>
+      <div class="roadmap-item">
+        <div class="roadmap-number">3</div>
+        <div class="roadmap-content">
+          <h4>Pago Rapido</h4>
+          <p>Flujo completo de pago unico: metodo de pago, ejecucion de cobro y estados.</p>
+        </div>
+      </div>
+      <div class="roadmap-item">
+        <div class="roadmap-number">4</div>
+        <div class="roadmap-content">
+          <h4>Suscripciones</h4>
+          <p>CRUD de suscripciones con creacion, listado y cancelacion.</p>
+        </div>
+      </div>
+      <div class="roadmap-item">
+        <div class="roadmap-number">5</div>
+        <div class="roadmap-content">
+          <h4>Webhooks</h4>
+          <p>Receptor de eventos, validacion de firma, idempotencia y registro de eventos.</p>
+        </div>
+      </div>
+      <div class="roadmap-item">
+        <div class="roadmap-number">6</div>
+        <div class="roadmap-content">
+          <h4>Frontend</h4>
+          <p>Pantallas React de pago rapido y gestion de suscripciones.</p>
+        </div>
+      </div>
+      <div class="roadmap-item">
+        <div class="roadmap-number">7</div>
+        <div class="roadmap-content">
+          <h4>Conciliacion</h4>
+          <p>Proceso de conciliacion de estados y auditoria de eventos.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <div class="divider"></div>
+
+  <!-- ==================== PROPUESTA COMERCIAL ==================== -->
+  <section id="propuesta" class="fade-in">
+    <span class="section-label">15 — Propuesta Comercial</span>
+    <h2 class="section-title">Alcance, Exclusiones y Entregables</h2>
+
+    <!-- Alcance / Exclusiones -->
+    <div class="scope-grid">
+      <div class="scope-card included">
+        <h3>✅ Alcance Incluido</h3>
+        <ul>
+          <li>Integracion completa con API Toku</li>
+          <li>Modulo Pago Rapido (backend + frontend)</li>
+          <li>Modulo Mi Sendero (backend + frontend)</li>
+          <li>Receptor de Webhooks con validacion</li>
+          <li>Modelos de datos y migraciones</li>
+          <li>Manejo de estados de pago</li>
+          <li>Conciliacion basica de estados</li>
+          <li>Configuracion por ambientes (sandbox/prod)</li>
+        </ul>
+      </div>
+      <div class="scope-card excluded">
+        <h3>❌ Exclusiones</h3>
+        <ul>
+          <li>Diseno UI/UX (se asume entregado)</li>
+          <li>Infraestructura / DevOps</li>
+          <li>Pruebas de carga / stress testing</li>
+          <li>Integracion con otros pasarelas de pago</li>
+          <li>Soporte post-implementacion</li>
+          <li>Documentacion de usuario final</li>
+          <li>App movil nativa</li>
+        </ul>
+      </div>
+    </div>
+
+    <!-- Entregables -->
+    <h3 style="margin: 2.5rem 0 1.5rem; font-size: 1.2rem;">Entregables</h3>
+    <div class="deliverables-grid">
+      <div class="deliverable-card">
+        <div class="icon">📦</div>
+        <h4>Codigo Fuente</h4>
+        <p>Backend Laravel + Frontend React, versionado en Git con PR review.</p>
+      </div>
+      <div class="deliverable-card">
+        <div class="icon">📋</div>
+        <h4>Documentacion Tecnica</h4>
+        <p>Endpoints, modelos, flujos, configuracion de ambientes y webhook setup.</p>
+      </div>
+      <div class="deliverable-card">
+        <div class="icon">🧪</div>
+        <h4>Tests</h4>
+        <p>Tests unitarios y de integracion para flujos criticos de pago.</p>
+      </div>
+      <div class="deliverable-card">
+        <div class="icon">🚀</div>
+        <h4>Deploy Guide</h4>
+        <p>Guia de despliegue con variables de entorno, migraciones y configuracion.</p>
+      </div>
+    </div>
+
+    <!-- Cronograma -->
+    <h3 style="margin: 2.5rem 0 1.5rem; font-size: 1.2rem;">Cronograma por Semanas</h3>
+    <div class="timeline-grid">
+      <div class="timeline-week">
+        <div class="week-header">Semana 1-2</div>
+        <div class="week-body">
+          <ul>
+            <li>Cliente API Toku</li>
+            <li>Modelos y migraciones</li>
+            <li>Flujo Customer</li>
+          </ul>
+        </div>
+      </div>
+      <div class="timeline-week">
+        <div class="week-header">Semana 3-4</div>
+        <div class="week-body">
+          <ul>
+            <li>Pago Rapido (backend)</li>
+            <li>Suscripciones (backend)</li>
+            <li>Webhooks</li>
+          </ul>
+        </div>
+      </div>
+      <div class="timeline-week">
+        <div class="week-header">Semana 5</div>
+        <div class="week-body">
+          <ul>
+            <li>Frontend Pago Rapido</li>
+            <li>Frontend Mi Sendero</li>
+            <li>Manejo de errores UX</li>
+          </ul>
+        </div>
+      </div>
+      <div class="timeline-week">
+        <div class="week-header">Semana 6</div>
+        <div class="week-body">
+          <ul>
+            <li>Conciliacion de estados</li>
+            <li>Testing integral</li>
+            <li>Documentacion y entrega</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <div class="divider"></div>
+
+  <!-- ==================== CTA FINAL ==================== -->
+  <section class="cta-section fade-in">
+    <h2>Resultado Esperado</h2>
+    <p>Al finalizar la implementacion, la plataforma estara habilitada para procesar pagos unicos y suscripciones recurrentes con una integracion desacoplada, escalable y con registro completo de eventos.</p>
+    <div class="total-box">
+      <div class="label">Tiempo Total Estimado</div>
+      <div class="value">100 horas</div>
+    </div>
+    <div style="margin-top: 1rem;">
+      <div style="display: inline-flex; gap: 2rem; flex-wrap: wrap; justify-content: center;">
+        <div>
+          <div style="font-size: 1.5rem; font-weight: 800;">80h</div>
+          <div style="font-size: 0.8rem; color: var(--text-muted); text-transform: uppercase; letter-spacing: 1px;">Backend</div>
+        </div>
+        <div>
+          <div style="font-size: 1.5rem; font-weight: 800;">20h</div>
+          <div style="font-size: 0.8rem; color: var(--text-muted); text-transform: uppercase; letter-spacing: 1px;">Frontend</div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ==================== FOOTER ==================== -->
+  <footer>
+    <p>Propuesta Tecnica — Integracion Sendero × Toku — Febrero 2026</p>
+  </footer>
+
+  <!-- ==================== SCRIPTS ==================== -->
+  <script>
+    // Intersection Observer for fade-in animations
+    const observer = new IntersectionObserver((entries) => {
+      entries.forEach(entry => {
+        if (entry.isIntersecting) {
+          entry.target.classList.add('visible');
+        }
+      });
+    }, { threshold: 0.1 });
+
+    document.querySelectorAll('.fade-in').forEach(el => observer.observe(el));
+
+    // Active nav link on scroll
+    const sections = document.querySelectorAll('section[id], header[id]');
+    const navLinks = document.querySelectorAll('nav ul li a');
+
+    window.addEventListener('scroll', () => {
+      let current = '';
+      sections.forEach(section => {
+        const sectionTop = section.offsetTop - 100;
+        if (scrollY >= sectionTop) {
+          current = section.getAttribute('id');
+        }
+      });
+
+      navLinks.forEach(link => {
+        link.classList.remove('active');
+        if (link.getAttribute('href') === '#' + current) {
+          link.classList.add('active');
+        }
+      });
+    });
+  </script>
+</body>
+</html>
