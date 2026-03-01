@@ -1,7 +1,8 @@
-import { useEffect, useState } from "react"
+import { useContext, useEffect, useState } from "react"
 import type { CoinInterface } from "../interfaces/Coin"
 import CoinsTable from "./CoinsTable"
 import { URL_COINS } from "../constants/api"
+import { FavoritesContext } from "../context/FavoritesContext"
 
 const WatchListContainer = () => {
 
@@ -9,9 +10,10 @@ const WatchListContainer = () => {
     const [loading, setLoading] = useState<Boolean>(true)
     const [error, setError] = useState<String | null>(null)
 
+    const {favorites, clearFavorites} = useContext(FavoritesContext)
 
     const handleClearFavorites = () => {
-        localStorage.removeItem("favorites")
+        clearFavorites()
         setCoinsList([])
     }
 
@@ -21,11 +23,11 @@ const WatchListContainer = () => {
 
     useEffect(() => {
 
-        if (JSON.parse(localStorage.getItem("favorites") || "[]").length === 0) {
+        if (favorites.length === 0) {
             setLoading(false)
             return
         }
-        fetch(`${URL_COINS}&ids=${JSON.parse(localStorage.getItem("favorites") || "[]").map((fav: CoinInterface) => fav.id).join(",")}`)
+        fetch(`${URL_COINS}&ids=${Array.isArray(favorites) ? favorites.join(",") : JSON.parse(favorites || "[]").join(",")}`)
             .then(response => {
                 if (!response.ok) {
                     throw new Error(`HTTP error ${response.status}`)
