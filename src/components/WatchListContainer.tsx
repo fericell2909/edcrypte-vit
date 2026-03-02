@@ -1,8 +1,8 @@
-import { useContext, useEffect, useState } from "react"
+import { useEffect, useState } from "react"
 import type { CoinInterface } from "../interfaces/Coin"
 import CoinsTable from "./CoinsTable"
 import { URL_COINS } from "../constants/api"
-import { FavoritesContext } from "../context/FavoritesContext"
+import { useFavoritesStore } from "../store/favoritesStore"
 
 const WatchListContainer = () => {
 
@@ -10,7 +10,7 @@ const WatchListContainer = () => {
     const [loading, setLoading] = useState<Boolean>(true)
     const [error, setError] = useState<String | null>(null)
 
-    const {favorites, clearFavorites} = useContext(FavoritesContext)
+    const {favorites, clearFavorites} = useFavoritesStore()
 
     const handleClearFavorites = () => {
         clearFavorites()

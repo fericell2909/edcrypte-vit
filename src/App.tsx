@@ -5,13 +5,11 @@ import CoinsContainer from './components/CoinsContainer'
 import NotFound from './components/NotFound'
 import WatchListContainer from './components/WatchListContainer'
 import CoinContainer from './components/CoinContainer'
-import FavoritesProvider from './context/FavoritesProvider'
 
 const App = () => {
 
   return (
     <>
-      <FavoritesProvider>
         <BrowserRouter>
             <Routes>
               <Route path="/" element={<Layout />}>
@@ -23,7 +21,6 @@ const App = () => {
             </Routes>
             
         </BrowserRouter>
-      </FavoritesProvider>
     </>
   )
 }
