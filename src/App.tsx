@@ -5,13 +5,12 @@ import CoinsContainer from './components/CoinsContainer'
 import NotFound from './components/NotFound'
 import WatchListContainer from './components/WatchListContainer'
 import CoinContainer from './components/CoinContainer'
-import FavoritesProvider from './context/FavoritesProvider'
+import { ReactQueryDevtools } from '@tanstack/react-query-devtools'
 
 const App = () => {
 
   return (
     <>
-      <FavoritesProvider>
         <BrowserRouter>
             <Routes>
               <Route path="/" element={<Layout />}>
@@ -21,9 +20,8 @@ const App = () => {
                 <Route path="*" element={<NotFound />} />
               </Route>
             </Routes>
-            
+          <ReactQueryDevtools initialIsOpen={false} />
         </BrowserRouter>
-      </FavoritesProvider>
     </>
   )
 }

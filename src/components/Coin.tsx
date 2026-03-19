@@ -1,12 +1,10 @@
 
-import { useContext } from 'react'
-
 import { Link } from 'react-router-dom'
-import { FavoritesContext } from '../context/FavoritesContext'
+import { useFavoritesStore } from '../store/favoritesStore'
 
 const Coin = ({ id, name, symbol, image, current_price, price_change_percentage_24h , onRemoveFavorite }: {id: string, name: string, symbol: string, image: string, current_price: number, price_change_percentage_24h: number, onRemoveFavorite?: (id: string) => void} ) => {
 
-  const { addFavorite, isFavorite, removeFavorite} = useContext(FavoritesContext)
+  const { addFavorite, isFavorite, removeFavorite} = useFavoritesStore()
   
   const handleFavorites = () => {
     

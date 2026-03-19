@@ -1,7 +1,6 @@
-import { useEffect, useState } from "react"
-import { URL_COINS } from "../constants/api"
+import { useState } from "react"
 import { useParams, Link } from "react-router-dom"
-import type { CoinDetailInterface } from "../interfaces/Coin"
+import { useCoin } from "../hooks/useCoin"
 
 // --- Utilities ---
 
@@ -137,30 +136,10 @@ type Tab = "general" | "supply" | "historico"
 
 const CoinContainer = () => {
     const { id } = useParams()
-    const [coin, setCoin] = useState<CoinDetailInterface | null>(null)
-    const [loading, setLoading] = useState<boolean>(true)
-    const [error, setError] = useState<string | null>(null)
     const [activeTab, setActiveTab] = useState<Tab>("general")
+    const { data: coin, isLoading, isFetching, error } = useCoin(id!)
 
-    useEffect(() => {
-        setError(null)
-        fetch(`${URL_COINS}&ids=${id}`)
-            .then(response => {
-                if (!response.ok) throw new Error(`HTTP error ${response.status}`)
-                return response.json()
-            })
-            .then(data => {
-                if (data.length === 0) throw new Error("Criptomoneda no encontrada.")
-                setCoin(data[0])
-            })
-            .catch(error => {
-                console.error("Error fetching coin data:", error)
-                setError(error.message)
-            })
-            .finally(() => setLoading(false))
-    }, [id])
-
-    if (loading) {
+    if (isLoading) {
         return (
             <div className="flex items-center justify-center mt-20">
                 <div className="h-8 w-8 animate-spin rounded-full border-4 border-gray-300 border-t-amber-500" />
@@ -169,7 +148,7 @@ const CoinContainer = () => {
     }
 
     if (error) {
-        return <p className="flex justify-center px-4 py-4 text-red-500">{error}</p>
+        return <p className="flex justify-center px-4 py-4 text-red-500">{error.message}</p>
     }
 
     if (!coin) return null
@@ -312,6 +291,14 @@ const CoinContainer = () => {
             <p className="text-xs text-gray-400 text-center">
                 Ultima actualizacion: {new Date(coin.last_updated).toLocaleString("es-ES")}
             </p>
+
+            {/* Refetch spinner */}
+            {isFetching && (
+                <div className="fixed bottom-5 right-5 flex items-center gap-2 bg-white border border-gray-200 shadow-md rounded-full px-3 py-1.5">
+                    <div className="h-3.5 w-3.5 animate-spin rounded-full border-2 border-gray-300 border-t-amber-500" />
+                    <span className="text-xs text-gray-500">Actualizando</span>
+                </div>
+            )}
         </div>
     )
 }
